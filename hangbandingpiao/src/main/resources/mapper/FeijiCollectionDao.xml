@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.FeijiCollectionDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.feiji_id as feijiId
+        ,a.yonghu_id as yonghuId
+        ,a.insert_time as insertTime
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.FeijiCollectionView" >
+        SELECT
+        <include refid="Base_Column_List" />
+
+--         级联表的字段
+        ,feiji.feiji_name as feijiName
+        ,feiji.feiji_types as feijiTypes
+        ,feiji.feiji_leixing_types as feijiLeixingTypes
+        ,feiji.feiji_start_time as feijiStartTime
+        ,feiji.feiji_start_address as feijiStartAddress
+        ,feiji.feiji_end_address as feijiEndAddress
+        ,feiji.feiji_new_money as feijiNewMoney
+        ,feiji.feiji_photo as feijiPhoto
+        ,feiji.feiji_content as feijiContent
+        ,yonghu.yonghu_name as yonghuName
+        ,yonghu.yonghu_phone as yonghuPhone
+        ,yonghu.yonghu_id_number as yonghuIdNumber
+        ,yonghu.new_money as newMoney
+        ,yonghu.sex_types as sexTypes
+        ,yonghu.yonghu_photo as yonghuPhoto
+
+        FROM feiji_collection  a
+        left JOIN feiji feiji ON a.feiji_id = feiji.id
+        left JOIN yonghu yonghu ON a.yonghu_id = yonghu.id
+
+        <where>
+            <if test="params.feijiId != null">
+                and a.feiji_id = #{params.feijiId}
+            </if>
+            <if test="params.yonghuId != null">
+                and a.yonghu_id = #{params.yonghuId}
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and DATE_FORMAT(a.insert_time, '%Y-%m-%d %H:%T:%s') >=
+                DATE_FORMAT(#{params.insertTimeStart}, '%Y-%m-%d %H:%T:%s')   ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and DATE_FORMAT(a.insert_time, '%Y-%m-%d %H:%T:%s') <=
+                DATE_FORMAT(#{params.insertTimeEnd} , '%Y-%m-%d %H:%T:%s')    ]]>
+            </if>
+
+            <if test=" params.feijiName != '' and params.feijiName != null and params.feijiName != 'null' ">
+                and feiji.feiji_name like CONCAT('%',#{params.feijiName},'%')
+            </if>
+            <if test="params.feijiTypes != null">
+                and feiji.feiji_types = #{params.feijiTypes}
+            </if>
+
+            <if test="params.feijiLeixingTypes != null">
+                and feiji.feiji_leixing_types = #{params.feijiLeixingTypes}
+            </if>
+
+            <if test=" params.feijiStartTime != '' and params.feijiStartTime != null and params.feijiStartTime != 'null' ">
+                and feiji.feiji_start_time like CONCAT('%',#{params.feijiStartTime},'%')
+            </if>
+            <if test=" params.feijiStartAddress != '' and params.feijiStartAddress != null and params.feijiStartAddress != 'null' ">
+                and feiji.feiji_start_address like CONCAT('%',#{params.feijiStartAddress},'%')
+            </if>
+            <if test=" params.feijiEndAddress != '' and params.feijiEndAddress != null and params.feijiEndAddress != 'null' ">
+                and feiji.feiji_end_address like CONCAT('%',#{params.feijiEndAddress},'%')
+            </if>
+            <if test="params.feijiNewMoneyStart != null ">
+                <![CDATA[  and feiji.feiji_new_money >= #{params.feijiNewMoneyStart}   ]]>
+            </if>
+            <if test="params.feijiNewMoneyEnd != null ">
+                <![CDATA[  and feiji.feiji_new_money <= #{params.feijiNewMoneyEnd}   ]]>
+            </if>
+            <if test=" params.feijiContent != '' and params.feijiContent != null and params.feijiContent != 'null' ">
+                and feiji.feiji_content like CONCAT('%',#{params.feijiContent},'%')
+            </if>
+            <if test=" params.yonghuName != '' and params.yonghuName != null and params.yonghuName != 'null' ">
+                and yonghu.yonghu_name like CONCAT('%',#{params.yonghuName},'%')
+            </if>
+            <if test=" params.yonghuPhone != '' and params.yonghuPhone != null and params.yonghuPhone != 'null' ">
+                and yonghu.yonghu_phone like CONCAT('%',#{params.yonghuPhone},'%')
+            </if>
+            <if test=" params.yonghuIdNumber != '' and params.yonghuIdNumber != null and params.yonghuIdNumber != 'null' ">
+                and yonghu.yonghu_id_number like CONCAT('%',#{params.yonghuIdNumber},'%')
+            </if>
+            <if test="params.newMoneyStart != null ">
+                <![CDATA[  and yonghu.new_money >= #{params.newMoneyStart}   ]]>
+            </if>
+            <if test="params.newMoneyEnd != null ">
+                <![CDATA[  and yonghu.new_money <= #{params.newMoneyEnd}   ]]>
+            </if>
+            <if test="params.sexTypes != null">
+                and yonghu.sex_types = #{params.sexTypes}
+            </if>
+
+        </where>
+        order by a.${params.orderBy} desc
+    </select>
+
+</mapper>
